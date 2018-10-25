@@ -1,0 +1,9 @@
+TMSG_MARK : 0
+
+C2S_LOGIN           //登录消息
+S2C_LOGIN_RESP      //登录返回
+
+TMSG_MARK : 100000
+
+
+

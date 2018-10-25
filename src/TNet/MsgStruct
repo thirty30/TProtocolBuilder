@@ -1,0 +1,87 @@
+//通用消息
+TMSG_BEGIN:CommonBool
+Value : BOOL
+TMSG_END:CommonBool
+
+TMSG_BEGIN:CommonN8
+Value : N8
+TMSG_END:CommonN8
+
+TMSG_BEGIN:CommonN16
+Value:N16
+TMSG_END:CommonN16
+
+TMSG_BEGIN:CommonN32
+Value:N32
+TMSG_END:CommonN32
+
+TMSG_BEGIN:CommonN64
+Value:N64
+TMSG_END:CommonN64
+
+TMSG_BEGIN:CommonU8
+Value:U8
+TMSG_END:CommonU8
+
+TMSG_BEGIN:CommonU16
+Value:U16
+TMSG_END:CommonU16
+
+TMSG_BEGIN:CommonU32
+Value:U32
+TMSG_END:CommonU32
+
+TMSG_BEGIN:CommonU64
+Value:U64
+TMSG_END:CommonU64
+
+TMSG_BEGIN:CommonF32
+Value:F32
+TMSG_END:CommonF32
+
+TMSG_BEGIN:CommonF64
+Value:F64
+TMSG_END:CommonF64
+
+TMSG_BEGIN:CommonStr
+Value:STR
+TMSG_END:CommonStr
+
+TMSG_BEGIN:T1
+Value1:N32
+Value2:F32
+Value3:STR
+TMSG_END:T1
+
+TMSG_BEGIN:T2
+Value1:N32
+Value2:F32
+Value3:STR
+Value4:N32
+TMSG_END:T2
+
+TMSG_BEGIN:Test
+Value0  : BOOL
+Value1  : N8
+Value2  : N16
+Value3  : N32
+Value4  : N64
+Value5  : U8
+Value6  : U16
+Value7  : U32
+Value8  : U64
+Value9  : F32
+Value10 : F64
+Value11 : STR
+Value12 : T1
+Value13 : []T2
+Value14 : []N32
+Value15 : []STR
+TMSG_END:Test
+
+
+//消息写在上面
+
+
+
+
