@@ -14,7 +14,7 @@ type sBuildCSFile struct {
 func (pOwn *sBuildCSFile) getRealType(aItem *sMessageItem) string {
 	strTempType := ""
 	//得到真实的类型
-	if aItem.isArray() == true {
+	if isArray(aItem.Type) == true {
 		strTempType = aItem.Type[2:]
 	} else {
 		strTempType = aItem.Type
@@ -89,7 +89,7 @@ func (pOwn *sBuildCSFile) doBuildMessageStruct(aMsg *sMessage) {
 	strContent += fmt.Sprintf("public class %s : IHotfixMessage\n{\n", strMsgName)
 	for _, node := range aMsg.Nodes {
 		strType := pOwn.getRealType(node)
-		if node.isArray() == true {
+		if isArray(node.Type) == true {
 			strContent += fmt.Sprintf("public List<%s> %s = new List<%s>();\n", strType, node.Name, strType)
 		} else {
 			_, bOK := pOwn.mMapTypeRelation[node.Type]
@@ -111,7 +111,7 @@ func (pOwn *sBuildCSFile) doBuildMessageStruct(aMsg *sMessage) {
 			continue
 		}
 		//非基础类型对象
-		if node.isArray() == false {
+		if isArray(node.Type) == false {
 			strContent += fmt.Sprintf("this.%s.Serialize(rBuffer, nSize - nOffset, ref nOffset);\n", node.Name)
 			continue
 		}
@@ -140,7 +140,7 @@ func (pOwn *sBuildCSFile) doBuildMessageStruct(aMsg *sMessage) {
 			continue
 		}
 		//非基础类型对象
-		if node.isArray() == false {
+		if isArray(node.Type) == false {
 			strContent += fmt.Sprintf("this.%s.Deserialize(rBuffer, nSize - nOffset, ref nOffset);\n", node.Name)
 			continue
 		}

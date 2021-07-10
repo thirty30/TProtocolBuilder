@@ -4,6 +4,14 @@ import "os"
 
 //eg. MsgBuilder.exe -s MsgStruct -i MsgID -go ./MsgDefine.go -ts./MsgDefine.ts -cs ./MsgDefine.cs
 func analysisArgs() bool {
+	//没有选项的情况显示帮助信息
+	if len(os.Args) <= 1 {
+		for _, v := range gCommandItems {
+			log(v.mBuilder.getCommandDesc())
+		}
+		return false
+	}
+
 	//解析指令
 	args := os.Args[1:]
 	var pItem *sCommandItem = nil
@@ -17,23 +25,11 @@ func analysisArgs() bool {
 			}
 			pItem.mCanExecute = true
 		} else {
+			if pItem == nil {
+				logErr("illegal command:" + parm)
+				return false
+			}
 			pItem.mParm = append(pItem.mParm, parm)
-		}
-	}
-
-	//没有选项的情况显示帮助信息
-	{
-		t := 0
-		for _, v := range gCommandItems {
-			if v.mCanExecute == false {
-				t++
-			}
-		}
-		if t == len(gCommandItems) {
-			for _, v := range gCommandItems {
-				log(v.mBuilder.getCommandDesc())
-			}
-			return false
 		}
 	}
 

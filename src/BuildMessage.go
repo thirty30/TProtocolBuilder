@@ -117,9 +117,9 @@ func (pOwn *sBuildMessage) buildMessageStruct() bool {
 			pNode := pNewMsg.appendNode()
 			pNode.Name = args[0]
 			pNode.Type = args[1]
-			//判断数组语法格式
-			if pNode.checkType() == false {
-				logErr("illegal array define: " + line)
+			//判断数据类型
+			if verifyType(pNode.Type) == false {
+				logErr("illegal value type: " + pNode.Type)
 				return false
 			}
 		}

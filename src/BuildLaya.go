@@ -14,7 +14,7 @@ type sBuildLayaFile struct {
 func (pOwn *sBuildLayaFile) getRealType(aItem *sMessageItem) string {
 	strTempType := ""
 	//得到真实的类型
-	if aItem.isArray() == true {
+	if isArray(aItem.Type) == true {
 		strTempType = aItem.Type[2:]
 	} else {
 		strTempType = aItem.Type
@@ -86,7 +86,7 @@ func (pOwn *sBuildLayaFile) doBuildMessageStruct(aMsg *sMessage) {
 	//消息字段定义
 	for _, node := range aMsg.Nodes {
 		strRealType := pOwn.getRealType(node)
-		if node.isArray() == false {
+		if isArray(node.Type) == false {
 			strContent += fmt.Sprintf("public %s : %s;\n", node.Name, strRealType)
 		} else {
 			strContent += fmt.Sprintf("private m%s : %s[];\n", node.Name, strRealType)
@@ -110,7 +110,7 @@ func (pOwn *sBuildLayaFile) doBuildMessageStruct(aMsg *sMessage) {
 			continue
 		}
 		//对象
-		if node.isArray() == false {
+		if isArray(node.Type) == false {
 			strContent += fmt.Sprintf("this.%s = new %s();", node.Name, strRealType)
 			continue
 		}
@@ -121,7 +121,7 @@ func (pOwn *sBuildLayaFile) doBuildMessageStruct(aMsg *sMessage) {
 	//数组方法
 	for _, node := range aMsg.Nodes {
 		strType := pOwn.getRealType(node)
-		if node.isArray() == false {
+		if isArray(node.Type) == false {
 			continue
 		}
 		strContent += fmt.Sprintf("public Get%sCount() : number { return this.m%s.length; }\n", node.Name, node.Name)
@@ -139,7 +139,7 @@ func (pOwn *sBuildLayaFile) doBuildMessageStruct(aMsg *sMessage) {
 			continue
 		}
 		//非基础类型
-		if node.isArray() == false {
+		if isArray(node.Type) == false {
 			strContent += fmt.Sprintf("this.%s.Serialize(rBuffer);\n", node.Name)
 			continue
 		}
@@ -166,7 +166,7 @@ func (pOwn *sBuildLayaFile) doBuildMessageStruct(aMsg *sMessage) {
 			continue
 		}
 		//非基础类型
-		if node.isArray() == false {
+		if isArray(node.Type) == false {
 			strContent += fmt.Sprintf("this.%s.Deserialize(rBuffer);\n", node.Name)
 			continue
 		}

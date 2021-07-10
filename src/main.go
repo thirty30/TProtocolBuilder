@@ -7,6 +7,7 @@ import (
 var gMessageStructList []*sMessage
 var gMessageIDList []*sMessageIDNode
 var gCommandItems []*sCommandItem
+var gTypeKeyWord = []string{"BOOL", "N8", "N16", "N32", "N64", "U8", "U16", "U32", "U64", "F32", "F64", "STR"}
 
 func main() {
 	gMessageStructList = make([]*sMessage, 0, 1024)
@@ -31,8 +32,12 @@ func main() {
 		if v.mBuilder.init() == false {
 			return
 		}
-		v.mBuilder.buildMessageStruct()
-		v.mBuilder.buildMessageID()
+		if v.mBuilder.buildMessageStruct() == false {
+			return
+		}
+		if v.mBuilder.buildMessageID() == false {
+			return
+		}
 		v.mBuilder.clear()
 	}
 

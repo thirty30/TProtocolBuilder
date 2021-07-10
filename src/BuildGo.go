@@ -14,7 +14,7 @@ type sBuildGoFile struct {
 func (pOwn *sBuildGoFile) getRealType(aItem *sMessageItem) string {
 	strTempType := ""
 	//得到真实的类型
-	if aItem.isArray() == true {
+	if isArray(aItem.Type) == true {
 		strTempType = aItem.Type[2:]
 	} else {
 		strTempType = aItem.Type
@@ -26,7 +26,7 @@ func (pOwn *sBuildGoFile) getRealType(aItem *sMessageItem) string {
 		return strType
 	}
 	//非基础类型的数组用指针
-	if aItem.isArray() == true {
+	if isArray(aItem.Type) == true {
 		return "*" + strTempType
 	}
 	//非基础类型的对象不用指针
@@ -90,7 +90,7 @@ func (pOwn *sBuildGoFile) doBuildMessageStruct(aMsg *sMessage) {
 	strContent += fmt.Sprintf("type %s struct{\n", strMsgName)
 	for _, node := range aMsg.Nodes {
 		strType := pOwn.getRealType(node)
-		if node.isArray() == true {
+		if isArray(node.Type) == true {
 			strContent += fmt.Sprintf("m%s []%s\n", node.Name, strType)
 		} else {
 			strContent += fmt.Sprintf("%s %s\n", node.Name, strType)
@@ -101,7 +101,7 @@ func (pOwn *sBuildGoFile) doBuildMessageStruct(aMsg *sMessage) {
 	//数组方法
 	for _, node := range aMsg.Nodes {
 		strType := pOwn.getRealType(node)
-		if node.isArray() == false {
+		if isArray(node.Type) == false {
 			continue
 		}
 		strContent += fmt.Sprintf("func (pOwn *%s) Get%sCount() int32 { return int32(len(pOwn.m%s)) }\n", strMsgName, node.Name, node.Name)
@@ -122,7 +122,7 @@ func (pOwn *sBuildGoFile) doBuildMessageStruct(aMsg *sMessage) {
 			continue
 		}
 		//非基础类型对象
-		if node.isArray() == false {
+		if isArray(node.Type) == false {
 			strContent += fmt.Sprintf("nOffset += pOwn.%s.Serialize(aBuffer[nOffset:], aSize-nOffset)\n", node.Name)
 			continue
 		}
@@ -153,7 +153,7 @@ func (pOwn *sBuildGoFile) doBuildMessageStruct(aMsg *sMessage) {
 			continue
 		}
 		//非基础类型对象
-		if node.isArray() == false {
+		if isArray(node.Type) == false {
 			strContent += fmt.Sprintf("nOffset += pOwn.%s.Deserialize(aBuffer[nOffset:], aSize-nOffset)\n", node.Name)
 			continue
 		}
