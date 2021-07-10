@@ -14,7 +14,7 @@
             "host": "127.0.0.1",
             "program": "${fileDirname}",
             "env": {},
-            "args": ["-s", "./TNet/MsgStruct", "-i", "./TNet/MsgID", "-go", "./TNet/MsgDefine.go", "-ts", "./TNet/MsgDefine.ts"],
+            "args": ["-md", "./TNet/MsgStruct", "./TNet/MsgID", "-go", "./TNet/MsgDefine.go", "-cs", "./TNet/MsgDefine.cs"],
             "showLog": true
         }
     ]

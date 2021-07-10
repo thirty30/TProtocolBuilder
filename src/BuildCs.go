@@ -5,18 +5,19 @@ import (
 	"os"
 )
 
-type sBuildCsFile struct {
+type sBuildCSFile struct {
+	mFilePath        string
 	mFile            *os.File
 	mMapTypeRelation map[string]string
 }
 
-func (pOwn *sBuildCsFile) getRealType(aNode *sNode) string {
+func (pOwn *sBuildCSFile) getRealType(aItem *sMessageItem) string {
 	strTempType := ""
 	//得到真实的类型
-	if aNode.isArray() == true {
-		strTempType = aNode.Type[2:]
+	if aItem.isArray() == true {
+		strTempType = aItem.Type[2:]
 	} else {
-		strTempType = aNode.Type
+		strTempType = aItem.Type
 	}
 
 	strType, bOK := pOwn.mMapTypeRelation[strTempType]
@@ -27,11 +28,7 @@ func (pOwn *sBuildCsFile) getRealType(aNode *sNode) string {
 	return strTempType
 }
 
-func (pOwn *sBuildCsFile) init() bool {
-	if len(gCommand.CsFileName) <= 0 {
-		return true
-	}
-
+func (pOwn *sBuildCSFile) init() bool {
 	pOwn.mMapTypeRelation = make(map[string]string)
 	pOwn.mMapTypeRelation["BOOL"] = "bool"
 	pOwn.mMapTypeRelation["N8"] = "byte"
@@ -47,7 +44,7 @@ func (pOwn *sBuildCsFile) init() bool {
 	pOwn.mMapTypeRelation["STR"] = "string"
 
 	var err error
-	pOwn.mFile, err = os.Create(gCommand.CsFileName)
+	pOwn.mFile, err = os.Create(pOwn.mFilePath)
 	if err != nil {
 		logErr("can not create cs file")
 		return false
@@ -59,18 +56,33 @@ func (pOwn *sBuildCsFile) init() bool {
 	return true
 }
 
-func (pOwn *sBuildCsFile) clear() {
-	if len(gCommand.CsFileName) <= 0 {
-		return
-	}
+func (pOwn *sBuildCSFile) clear() {
 	pOwn.mFile.WriteString("\n}\n")
 	pOwn.mFile.Close()
 }
 
-func (pOwn *sBuildCsFile) buildStruct(aMsg *sMessage) {
-	if len(gCommand.CsFileName) <= 0 {
-		return
+func (pOwn *sBuildCSFile) getCommandDesc() string {
+	return "-cs [file]: optional command. Generate c# message file. eg. -cs ./MsgDefine.cs"
+}
+
+func (pOwn *sBuildCSFile) verifyCommandParm(aParm []string) bool {
+	if len(aParm) != 1 {
+		logErr("the command -cs needs 1 (only 1) argument.")
+		return false
 	}
+	pOwn.mFilePath = aParm[0]
+	return true
+}
+
+func (pOwn *sBuildCSFile) buildMessageStruct() bool {
+	for _, msg := range gMessageStructList {
+		pOwn.doBuildMessageStruct(msg)
+	}
+	return true
+}
+
+func (pOwn *sBuildCSFile) doBuildMessageStruct(aMsg *sMessage) {
+
 	strMsgName := aMsg.Name
 	strContent := ""
 	//消息定义
@@ -153,14 +165,12 @@ func (pOwn *sBuildCsFile) buildStruct(aMsg *sMessage) {
 	pOwn.mFile.WriteString(strContent)
 }
 
-func (pOwn *sBuildCsFile) buildID(aList []*sIDNode) {
-	if len(gCommand.CsFileName) <= 0 {
-		return
-	}
+func (pOwn *sBuildCSFile) buildMessageID() bool {
 	strContent := "public class HotfixNetOpcode\n{\n"
-	for _, node := range aList {
+	for _, node := range gMessageIDList {
 		strContent += fmt.Sprintf("public const int %s = %d;\n", node.Name, node.Num)
 	}
 	strContent += "}\n"
 	pOwn.mFile.WriteString(strContent)
+	return true
 }

@@ -6,17 +6,18 @@ import (
 )
 
 type sBuildCocosFile struct {
+	mFilePath        string
 	mFile            *os.File
 	mMapTypeRelation map[string]string
 }
 
-func (pOwn *sBuildCocosFile) getRealType(aNode *sNode) string {
+func (pOwn *sBuildCocosFile) getRealType(aItem *sMessageItem) string {
 	strTempType := ""
 	//得到真实的类型
-	if aNode.isArray() == true {
-		strTempType = aNode.Type[2:]
+	if aItem.isArray() == true {
+		strTempType = aItem.Type[2:]
 	} else {
-		strTempType = aNode.Type
+		strTempType = aItem.Type
 	}
 
 	strType, bOK := pOwn.mMapTypeRelation[strTempType]
@@ -29,10 +30,6 @@ func (pOwn *sBuildCocosFile) getRealType(aNode *sNode) string {
 }
 
 func (pOwn *sBuildCocosFile) init() bool {
-	if len(gCommand.CocosFileName) <= 0 {
-		return true
-	}
-
 	pOwn.mMapTypeRelation = make(map[string]string)
 	pOwn.mMapTypeRelation["BOOL"] = "boolean"
 	pOwn.mMapTypeRelation["N8"] = "number"
@@ -48,7 +45,7 @@ func (pOwn *sBuildCocosFile) init() bool {
 	pOwn.mMapTypeRelation["STR"] = "string"
 
 	var err error
-	pOwn.mFile, err = os.Create(gCommand.CocosFileName)
+	pOwn.mFile, err = os.Create(pOwn.mFilePath)
 	if err != nil {
 		logErr("can not create go file")
 		return false
@@ -61,16 +58,30 @@ func (pOwn *sBuildCocosFile) init() bool {
 }
 
 func (pOwn *sBuildCocosFile) clear() {
-	if len(gCommand.CocosFileName) <= 0 {
-		return
-	}
 	pOwn.mFile.Close()
 }
 
-func (pOwn *sBuildCocosFile) buildStruct(aMsg *sMessage) {
-	if len(gCommand.CocosFileName) <= 0 {
-		return
+func (pOwn *sBuildCocosFile) getCommandDesc() string {
+	return "-cocos [file]: optional command. Generate go message file. eg. -cocos ./MsgDefine.ts"
+}
+
+func (pOwn *sBuildCocosFile) verifyCommandParm(aParm []string) bool {
+	if len(aParm) != 1 {
+		logErr("the command -cocos needs 1 (only 1) argument.")
+		return false
 	}
+	pOwn.mFilePath = aParm[0]
+	return true
+}
+
+func (pOwn *sBuildCocosFile) buildMessageStruct() bool {
+	for _, msg := range gMessageStructList {
+		pOwn.doBuildMessageStruct(msg)
+	}
+	return true
+}
+
+func (pOwn *sBuildCocosFile) doBuildMessageStruct(aMsg *sMessage) {
 	strMsgName := aMsg.Name
 	strContent := ""
 
@@ -182,14 +193,12 @@ func (pOwn *sBuildCocosFile) buildStruct(aMsg *sMessage) {
 	pOwn.mFile.WriteString(strContent)
 }
 
-func (pOwn *sBuildCocosFile) buildID(aList []*sIDNode) {
-	if len(gCommand.CocosFileName) <= 0 {
-		return
-	}
+func (pOwn *sBuildCocosFile) buildMessageID() bool {
 	strContent := "export enum TMsgID {\n"
-	for _, node := range aList {
+	for _, node := range gMessageIDList {
 		strContent += fmt.Sprintf("%s = %d,\n", node.Name, node.Num)
 	}
 	strContent += "}\n"
 	pOwn.mFile.WriteString(strContent)
+	return true
 }

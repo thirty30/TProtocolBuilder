@@ -6,17 +6,18 @@ import (
 )
 
 type sBuildLayaFile struct {
+	mFilePath        string
 	mFile            *os.File
 	mMapTypeRelation map[string]string
 }
 
-func (pOwn *sBuildLayaFile) getRealType(aNode *sNode) string {
+func (pOwn *sBuildLayaFile) getRealType(aItem *sMessageItem) string {
 	strTempType := ""
 	//得到真实的类型
-	if aNode.isArray() == true {
-		strTempType = aNode.Type[2:]
+	if aItem.isArray() == true {
+		strTempType = aItem.Type[2:]
 	} else {
-		strTempType = aNode.Type
+		strTempType = aItem.Type
 	}
 
 	strType, bOK := pOwn.mMapTypeRelation[strTempType]
@@ -29,10 +30,6 @@ func (pOwn *sBuildLayaFile) getRealType(aNode *sNode) string {
 }
 
 func (pOwn *sBuildLayaFile) init() bool {
-	if len(gCommand.LayaFileName) <= 0 {
-		return true
-	}
-
 	pOwn.mMapTypeRelation = make(map[string]string)
 	pOwn.mMapTypeRelation["BOOL"] = "boolean"
 	pOwn.mMapTypeRelation["N8"] = "number"
@@ -48,7 +45,7 @@ func (pOwn *sBuildLayaFile) init() bool {
 	pOwn.mMapTypeRelation["STR"] = "string"
 
 	var err error
-	pOwn.mFile, err = os.Create(gCommand.LayaFileName)
+	pOwn.mFile, err = os.Create(pOwn.mFilePath)
 	if err != nil {
 		logErr("can not create go file")
 		return false
@@ -57,16 +54,30 @@ func (pOwn *sBuildLayaFile) init() bool {
 }
 
 func (pOwn *sBuildLayaFile) clear() {
-	if len(gCommand.LayaFileName) <= 0 {
-		return
-	}
 	pOwn.mFile.Close()
 }
 
-func (pOwn *sBuildLayaFile) buildStruct(aMsg *sMessage) {
-	if len(gCommand.LayaFileName) <= 0 {
-		return
+func (pOwn *sBuildLayaFile) getCommandDesc() string {
+	return "-laya [file]: optional command. Generate laya message file. eg. -laya ./MsgDefine.ts"
+}
+
+func (pOwn *sBuildLayaFile) verifyCommandParm(aParm []string) bool {
+	if len(aParm) != 1 {
+		logErr("the command -laya needs 1 (only 1) argument.")
+		return false
 	}
+	pOwn.mFilePath = aParm[0]
+	return true
+}
+
+func (pOwn *sBuildLayaFile) buildMessageStruct() bool {
+	for _, msg := range gMessageStructList {
+		pOwn.doBuildMessageStruct(msg)
+	}
+	return true
+}
+
+func (pOwn *sBuildLayaFile) doBuildMessageStruct(aMsg *sMessage) {
 	strMsgName := aMsg.Name
 	strContent := ""
 
@@ -178,14 +189,12 @@ func (pOwn *sBuildLayaFile) buildStruct(aMsg *sMessage) {
 	pOwn.mFile.WriteString(strContent)
 }
 
-func (pOwn *sBuildLayaFile) buildID(aList []*sIDNode) {
-	if len(gCommand.LayaFileName) <= 0 {
-		return
-	}
+func (pOwn *sBuildLayaFile) buildMessageID() bool {
 	strContent := "enum TMsgID {\n"
-	for _, node := range aList {
+	for _, node := range gMessageIDList {
 		strContent += fmt.Sprintf("%s = %d,\n", node.Name, node.Num)
 	}
 	strContent += "}\n"
 	pOwn.mFile.WriteString(strContent)
+	return true
 }

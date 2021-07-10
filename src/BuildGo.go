@@ -6,17 +6,18 @@ import (
 )
 
 type sBuildGoFile struct {
+	mFilePath        string
 	mFile            *os.File
 	mMapTypeRelation map[string]string
 }
 
-func (pOwn *sBuildGoFile) getRealType(aNode *sNode) string {
+func (pOwn *sBuildGoFile) getRealType(aItem *sMessageItem) string {
 	strTempType := ""
 	//得到真实的类型
-	if aNode.isArray() == true {
-		strTempType = aNode.Type[2:]
+	if aItem.isArray() == true {
+		strTempType = aItem.Type[2:]
 	} else {
-		strTempType = aNode.Type
+		strTempType = aItem.Type
 	}
 
 	strType, bOK := pOwn.mMapTypeRelation[strTempType]
@@ -25,7 +26,7 @@ func (pOwn *sBuildGoFile) getRealType(aNode *sNode) string {
 		return strType
 	}
 	//非基础类型的数组用指针
-	if aNode.isArray() == true {
+	if aItem.isArray() == true {
 		return "*" + strTempType
 	}
 	//非基础类型的对象不用指针
@@ -33,10 +34,6 @@ func (pOwn *sBuildGoFile) getRealType(aNode *sNode) string {
 }
 
 func (pOwn *sBuildGoFile) init() bool {
-	if len(gCommand.GoFileName) <= 0 {
-		return true
-	}
-
 	pOwn.mMapTypeRelation = make(map[string]string)
 	pOwn.mMapTypeRelation["BOOL"] = "bool"
 	pOwn.mMapTypeRelation["N8"] = "int8"
@@ -52,7 +49,7 @@ func (pOwn *sBuildGoFile) init() bool {
 	pOwn.mMapTypeRelation["STR"] = "string"
 
 	var err error
-	pOwn.mFile, err = os.Create(gCommand.GoFileName)
+	pOwn.mFile, err = os.Create(pOwn.mFilePath)
 	if err != nil {
 		logErr("can not create go file")
 		return false
@@ -63,16 +60,30 @@ func (pOwn *sBuildGoFile) init() bool {
 }
 
 func (pOwn *sBuildGoFile) clear() {
-	if len(gCommand.GoFileName) <= 0 {
-		return
-	}
 	pOwn.mFile.Close()
 }
 
-func (pOwn *sBuildGoFile) buildStruct(aMsg *sMessage) {
-	if len(gCommand.GoFileName) <= 0 {
-		return
+func (pOwn *sBuildGoFile) getCommandDesc() string {
+	return "-go [file]: optional command. Generate go message file. eg. -go ./MsgDefine.go"
+}
+
+func (pOwn *sBuildGoFile) verifyCommandParm(aParm []string) bool {
+	if len(aParm) != 1 {
+		logErr("the command -go needs 1 (only 1) argument.")
+		return false
 	}
+	pOwn.mFilePath = aParm[0]
+	return true
+}
+
+func (pOwn *sBuildGoFile) buildMessageStruct() bool {
+	for _, msg := range gMessageStructList {
+		pOwn.doBuildMessageStruct(msg)
+	}
+	return true
+}
+
+func (pOwn *sBuildGoFile) doBuildMessageStruct(aMsg *sMessage) {
 	strMsgName := aMsg.Name
 	strContent := ""
 	//消息定义
@@ -171,14 +182,12 @@ func (pOwn *sBuildGoFile) buildStruct(aMsg *sMessage) {
 	pOwn.mFile.WriteString(strContent)
 }
 
-func (pOwn *sBuildGoFile) buildID(aList []*sIDNode) {
-	if len(gCommand.GoFileName) <= 0 {
-		return
-	}
+func (pOwn *sBuildGoFile) buildMessageID() bool {
 	strContent := "const (\n"
-	for _, node := range aList {
+	for _, node := range gMessageIDList {
 		strContent += fmt.Sprintf("%s = %d\n", node.Name, node.Num)
 	}
 	strContent += ")\n"
 	pOwn.mFile.WriteString(strContent)
+	return true
 }
