@@ -65,7 +65,7 @@ func (pOwn *sBuildCocosFile) getCommandDesc() string {
 	return "-cocos [file]: optional command. Generate go message file. eg. -cocos ./MsgDefine.ts"
 }
 
-func (pOwn *sBuildCocosFile) verifyCommandParm(aParm []string) bool {
+func (pOwn *sBuildCocosFile) initCommandParm(aParm []string) bool {
 	if len(aParm) != 1 {
 		logErr("the command -cocos needs 1 (only 1) argument.")
 		return false

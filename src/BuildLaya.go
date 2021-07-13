@@ -61,7 +61,7 @@ func (pOwn *sBuildLayaFile) getCommandDesc() string {
 	return "-laya [file]: optional command. Generate laya message file. eg. -laya ./MsgDefine.ts"
 }
 
-func (pOwn *sBuildLayaFile) verifyCommandParm(aParm []string) bool {
+func (pOwn *sBuildLayaFile) initCommandParm(aParm []string) bool {
 	if len(aParm) != 1 {
 		logErr("the command -laya needs 1 (only 1) argument.")
 		return false

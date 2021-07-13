@@ -39,7 +39,7 @@ func analysisArgs() bool {
 			logErr("lack necessary option -md.")
 			return false
 		}
-		if v.mCanExecute == true && v.mBuilder.verifyCommandParm(v.mParm) == false {
+		if v.mCanExecute == true && v.mBuilder.initCommandParm(v.mParm) == false {
 			return false
 		}
 	}

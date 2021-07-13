@@ -29,7 +29,7 @@ func (pOwn *sBuildMessage) getCommandDesc() string {
 	return "-md [MessageStructFile] [MessageIDFile] : necessary command, the parms are message struct and message id definition file path eg. -md ./MsgStruct ./MsgID"
 }
 
-func (pOwn *sBuildMessage) verifyCommandParm(aParm []string) bool {
+func (pOwn *sBuildMessage) initCommandParm(aParm []string) bool {
 	if len(aParm) != 2 {
 		logErr("need 2 files' path: message struct and message id definition file path")
 		return false

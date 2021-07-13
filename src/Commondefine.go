@@ -13,7 +13,7 @@ type IBuilder interface {
 	init() bool
 	clear()
 	getCommandDesc() string
-	verifyCommandParm(aParm []string) bool
+	initCommandParm(aParm []string) bool
 	buildMessageStruct() bool
 	buildMessageID() bool
 }

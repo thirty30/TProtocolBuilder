@@ -67,7 +67,7 @@ func (pOwn *sBuildGoFile) getCommandDesc() string {
 	return "-go [file]: optional command. Generate go message file. eg. -go ./MsgDefine.go"
 }
 
-func (pOwn *sBuildGoFile) verifyCommandParm(aParm []string) bool {
+func (pOwn *sBuildGoFile) initCommandParm(aParm []string) bool {
 	if len(aParm) != 1 {
 		logErr("the command -go needs 1 (only 1) argument.")
 		return false

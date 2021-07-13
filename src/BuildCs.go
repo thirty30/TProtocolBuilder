@@ -65,7 +65,7 @@ func (pOwn *sBuildCSFile) getCommandDesc() string {
 	return "-cs [file]: optional command. Generate c# message file. eg. -cs ./MsgDefine.cs"
 }
 
-func (pOwn *sBuildCSFile) verifyCommandParm(aParm []string) bool {
+func (pOwn *sBuildCSFile) initCommandParm(aParm []string) bool {
 	if len(aParm) != 1 {
 		logErr("the command -cs needs 1 (only 1) argument.")
 		return false
