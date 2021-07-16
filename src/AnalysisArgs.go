@@ -33,17 +33,6 @@ func analysisArgs() bool {
 		}
 	}
 
-	//检查指令和参数是否匹配
-	for _, v := range gCommandItems {
-		if v.mCmd == "-md" && v.mCanExecute == false {
-			logErr("lack necessary option -md.")
-			return false
-		}
-		if v.mCanExecute == true && v.mBuilder.initCommandParm(v.mParm) == false {
-			return false
-		}
-	}
-
 	return true
 }
 

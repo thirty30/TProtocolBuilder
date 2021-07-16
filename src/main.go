@@ -23,6 +23,18 @@ func main() {
 		return
 	}
 
+	//初始化builder参数
+	for _, v := range gCommandItems {
+		if v.mCmd == "-md" && v.mCanExecute == false {
+			logErr("lack necessary option -md.")
+			return
+		}
+		if v.mCanExecute == true && v.mBuilder.initCommandParm(v.mParm) == false {
+			return
+		}
+	}
+
+	//解析并生成
 	for _, v := range gCommandItems {
 		if v.mCanExecute == false {
 			continue
