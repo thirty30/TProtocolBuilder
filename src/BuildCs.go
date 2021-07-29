@@ -50,7 +50,7 @@ func (pOwn *sBuildCSFile) init() bool {
 		return false
 	}
 
-	pOwn.mFile.WriteString("using System;\nusing System.Collections.Generic;\nusing System.IO;\nusing System.Text;\nusing Knight.Hotfix.Core;\nusing Knight.Framework.Net;\n")
+	pOwn.mFile.WriteString("using System;\nusing System.Collections.Generic;\nusing System.IO;\nusing System.Text;\nusing TNet;\n")
 	pOwn.mFile.WriteString("namespace Game.Net\n{\n")
 
 	return true
@@ -86,7 +86,7 @@ func (pOwn *sBuildCSFile) doBuildMessageStruct(aMsg *sMessage) {
 	strMsgName := aMsg.Name
 	strContent := ""
 	//消息定义
-	strContent += fmt.Sprintf("public class %s : IHotfixMessage\n{\n", strMsgName)
+	strContent += fmt.Sprintf("public class %s : ITNetMessage\n{\n", strMsgName)
 	for _, node := range aMsg.Nodes {
 		strType := pOwn.getRealType(node)
 		if isArray(node.Type) == true {
@@ -102,61 +102,61 @@ func (pOwn *sBuildCSFile) doBuildMessageStruct(aMsg *sMessage) {
 	}
 
 	//序列化
-	strContent += "public void Serialize(byte[] rBuffer, int nSize, ref int nOffset)\n{\n"
+	strContent += "public void Serialize(byte[] aBuffer, int aSize, ref int nOffset)\n{\n"
 	for _, node := range aMsg.Nodes {
 		_, bOK := pOwn.mMapTypeRelation[node.Type]
 		//基础类型
 		if bOK == true {
-			strContent += fmt.Sprintf("NetworkMessageEncode.Serialize%s(this.%s, rBuffer, ref nOffset);\n", node.Type, node.Name)
+			strContent += fmt.Sprintf("TNetEncode.Serialize%s(this.%s, aBuffer, ref nOffset);\n", node.Type, node.Name)
 			continue
 		}
 		//非基础类型对象
 		if isArray(node.Type) == false {
-			strContent += fmt.Sprintf("this.%s.Serialize(rBuffer, nSize - nOffset, ref nOffset);\n", node.Name)
+			strContent += fmt.Sprintf("this.%s.Serialize(aBuffer, aSize - nOffset, ref nOffset);\n", node.Name)
 			continue
 		}
 		//数组
 		arrayType := node.Type[2:]
 		_, bOK = pOwn.mMapTypeRelation[arrayType]
 		strContent += fmt.Sprintf("int n%sCount = this.%s.Count;\n", node.Name, node.Name)
-		strContent += fmt.Sprintf("NetworkMessageEncode.SerializeN32(n%sCount, rBuffer, ref nOffset);\n", node.Name)
+		strContent += fmt.Sprintf("TNetEncode.SerializeN32(n%sCount, aBuffer, ref nOffset);\n", node.Name)
 		//基础类型数组
 		if bOK == true {
-			strContent += fmt.Sprintf("for (int i = 0; i < n%sCount; i++){NetworkMessageEncode.Serialize%s(this.%s[i], rBuffer, ref nOffset);}\n", node.Name, arrayType, node.Name)
+			strContent += fmt.Sprintf("for (int i = 0; i < n%sCount; i++){TNetEncode.Serialize%s(this.%s[i], aBuffer, ref nOffset);}\n", node.Name, arrayType, node.Name)
 			continue
 		}
 		//非基础类型数组
-		strContent += fmt.Sprintf("for (int i = 0; i < n%sCount; i++){this.%s[i].Serialize(rBuffer, nSize - nOffset, ref nOffset);}\n", node.Name, node.Name)
+		strContent += fmt.Sprintf("for (int i = 0; i < n%sCount; i++){this.%s[i].Serialize(aBuffer, aSize - nOffset, ref nOffset);}\n", node.Name, node.Name)
 	}
 	strContent += "\n}\n"
 
 	//反序列化
-	strContent += "public void Deserialize(byte[] rBuffer, int nSize, ref int nOffset)\n{\n"
+	strContent += "public void Deserialize(byte[] aBuffer, int aSize, ref int nOffset)\n{\n"
 	for _, node := range aMsg.Nodes {
 		_, bOK := pOwn.mMapTypeRelation[node.Type]
 		//基础类型
 		if bOK == true {
-			strContent += fmt.Sprintf("this.%s = NetworkMessageEncode.Deserialize%s(rBuffer, ref nOffset);\n", node.Name, node.Type)
+			strContent += fmt.Sprintf("this.%s = TNetEncode.Deserialize%s(aBuffer, ref nOffset);\n", node.Name, node.Type)
 			continue
 		}
 		//非基础类型对象
 		if isArray(node.Type) == false {
-			strContent += fmt.Sprintf("this.%s.Deserialize(rBuffer, nSize - nOffset, ref nOffset);\n", node.Name)
+			strContent += fmt.Sprintf("this.%s.Deserialize(aBuffer, aSize - nOffset, ref nOffset);\n", node.Name)
 			continue
 		}
 		//数组
 		arrayType := node.Type[2:]
 		_, bOK = pOwn.mMapTypeRelation[arrayType]
-		strContent += fmt.Sprintf("int n%sCount = NetworkMessageEncode.DeserializeN32(rBuffer, ref nOffset);\n", node.Name)
+		strContent += fmt.Sprintf("int n%sCount = TNetEncode.DeserializeN32(aBuffer, ref nOffset);\n", node.Name)
 		//基础类型数组
 		if bOK == true {
 			strContent += fmt.Sprintf("for(int i = 0; i < n%sCount; i++)\n{\n", node.Name)
-			strContent += fmt.Sprintf("this.%s.Add(NetworkMessageEncode.Deserialize%s(rBuffer, ref nOffset));\n}\n", node.Name, arrayType)
+			strContent += fmt.Sprintf("this.%s.Add(TNetEncode.Deserialize%s(aBuffer, ref nOffset));\n}\n", node.Name, arrayType)
 			continue
 		}
 		//非基础类型数组
 		strContent += fmt.Sprintf("for(int i = 0; i < n%sCount; i++)\n{\n", node.Name)
-		strContent += fmt.Sprintf("%s temp = new %s();temp.Deserialize(rBuffer, nSize - nOffset, ref nOffset);this.%s.Add(temp);\n}\n", arrayType, arrayType, node.Name)
+		strContent += fmt.Sprintf("%s temp = new %s();temp.Deserialize(aBuffer, aSize - nOffset, ref nOffset);this.%s.Add(temp);\n}\n", arrayType, arrayType, node.Name)
 	}
 	strContent += "\n}\n"
 
