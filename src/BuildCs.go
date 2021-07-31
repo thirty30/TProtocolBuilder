@@ -51,7 +51,7 @@ func (pOwn *sBuildCSFile) init() bool {
 	}
 
 	pOwn.mFile.WriteString("using System;\nusing System.Collections.Generic;\nusing System.IO;\nusing System.Text;\nusing TNet;\n")
-	pOwn.mFile.WriteString("namespace Game.Net\n{\n")
+	pOwn.mFile.WriteString("namespace Game.Message\n{\n")
 
 	return true
 }
@@ -86,7 +86,7 @@ func (pOwn *sBuildCSFile) doBuildMessageStruct(aMsg *sMessage) {
 	strMsgName := aMsg.Name
 	strContent := ""
 	//消息定义
-	strContent += fmt.Sprintf("public class %s : ITNetMessage\n{\n", strMsgName)
+	strContent += fmt.Sprintf("public class TMsg%s : ITNetMessage\n{\n", strMsgName)
 	for _, node := range aMsg.Nodes {
 		strType := pOwn.getRealType(node)
 		if isArray(node.Type) == true {
@@ -166,7 +166,7 @@ func (pOwn *sBuildCSFile) doBuildMessageStruct(aMsg *sMessage) {
 }
 
 func (pOwn *sBuildCSFile) buildMessageID() bool {
-	strContent := "public class HotfixNetOpcode\n{\n"
+	strContent := "public class TMessageID\n{\n"
 	for _, node := range gMessageIDList {
 		strContent += fmt.Sprintf("public const int %s = %d;\n", node.Name, node.Num)
 	}
